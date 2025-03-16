@@ -19,6 +19,14 @@ export function ContextPanel({ collapsed, fullScreen, onToggleCollapse, onToggle
   return (
     <div className={`${fullScreen ? 'fixed inset-0 z-50' : ''} ${collapsed ? 'w-16' : 'w-96'} transition-all duration-300 border-l border-gray-200 bg-white`}>
       <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+					<button onClick={onToggleCollapse}>
+						{collapsed ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+					</button>
+					<button onClick={onToggleFullScreen}>
+						{fullScreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+					</button>
+			</div>
+			<div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-4">
             <button
@@ -45,12 +53,6 @@ export function ContextPanel({ collapsed, fullScreen, onToggleCollapse, onToggle
             >
               <Play className="w-5 h-5" />
             </button>
-	          <button onClick={onToggleCollapse}>
-	            {collapsed ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-	          </button>
-	          <button onClick={onToggleFullScreen}>
-	            {fullScreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
-	          </button>
           </div>
         </div>
       </div>
