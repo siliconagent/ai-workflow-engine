@@ -1,20 +1,14 @@
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import { Send, User, Bot, Settings } from 'lucide-react'
 import { AppContext } from '../context/AppContext'
 import { LLMModal } from './LLMModal'
+import { callLLM } from '../aiService'
 
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
-}
-
-interface LLMProvider {
-  name: string
-  models: string[]
-  baseUrl: string
-  apiKey: string
 }
 
 export function ChatArea() {
@@ -28,11 +22,51 @@ export function ChatArea() {
   ])
   const [input, setInput] = useState('')
   const [showLLMModal, setShowLLMModal] = useState(false)
-  const [selectedLLMProvider, setSelectedLLMProvider] = useState<LLMProvider | null>(null)
-  const { llmProviders } = useContext(AppContext)
+  const { selectedLLMProvider } = useContext(AppContext)
+  const [modelName, setModelName] = useState<string>('')
 
   const handleSend = async () => {
-    // ... existing code
+    if (!input) return
+
+    const newMessage: Message = {
+      id: String(messages.length + 1),
+      role: 'user',
+      content: input,
+      timestamp: new Date()
+    }
+    setMessages([...messages, newMessage])
+    setInput('')
+
+    if (selectedLLMProvider) {
+      try {
+        const response = await callLLM(input, selectedLLMProvider, modelName)
+
+        const assistantMessage: Message = {
+          id: String(messages.length + 2),
+          role: 'assistant',
+          content: response,
+          timestamp: new Date()
+        }
+        setMessages([...messages, assistantMessage])
+      } catch (error: any) {
+        console.error("Error calling LLM:", error)
+        const errorAssistantMessage: Message = {
+          id: String(messages.length + 2),
+          role: 'assistant',
+          content: `Error calling LLM. Please check the console for details: ${error.message}`,
+          timestamp: new Date()
+        }
+        setMessages([...messages, errorAssistantMessage])
+      }
+    } else {
+      const noProviderMessage: Message = {
+        id: String(messages.length + 2),
+        role: 'assistant',
+        content: 'Please select an LLM provider.',
+        timestamp: new Date()
+      }
+      setMessages([...messages, noProviderMessage])
+    }
   }
 
   return (
@@ -82,9 +116,14 @@ export function ChatArea() {
 
       {showLLMModal && (
         <LLMModal
-          providers={llmProviders}
           onClose={() => setShowLLMModal(false)}
-          onSelect={(provider) => setSelectedLLMProvider(provider)}
+          onSelect={(provider) => {
+            // When a provider is selected in the modal, update the selected LLM provider and model name in the ChatArea
+            // You might want to store the model name in the AppContext as well, depending on your needs
+            const { id, name, models, baseUrl, apiKey } = provider
+            const selectedModel = models[0] // Select the first model by default or let the user choose in LLMModal
+            setModelName(selectedModel)
+          }}
         />
       )}
     </div>
