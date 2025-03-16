@@ -99,7 +99,9 @@ export function Navigator({ collapsed, onToggleCollapse }: LeftPanelProps) {
               </button> */}
               {/* {app.expanded && app.workflows && ( */}
                 <div className="ml-4">
-                  {app.workflows.map(workflow => (
+									<span>{app.name}</span>
+                  {
+										app.workflows.map(workflow => (
                     <div key={workflow.id} className="flex items-center justify-between py-2 px-3 hover:bg-gray-100">
                       <span className="text-sm">{workflow.name}</span>
                       <div>
